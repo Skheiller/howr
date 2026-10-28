@@ -3,7 +3,7 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 version=$(cat VERSION)
-if [[ -n "${GITHUB_REF_NAME:-}" && "$GITHUB_REF_NAME" != "v$version" ]]; then
+if [[ -n "${HOWR_RELEASE_TAG:-}" && "$HOWR_RELEASE_TAG" != "v$version" ]]; then
   echo "Release tag must match VERSION (v$version)." >&2; exit 1
 fi
 scripts/build.sh

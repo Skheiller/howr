@@ -5,6 +5,14 @@ signal(SIGPIPE, SIG_IGN)
 
 MainActor.assumeIsolated {
     let args = CommandLine.arguments
+    if args.contains("--version") {
+        print("Howr \(Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "development")")
+        exit(0)
+    }
+    if args.contains("--help") {
+        print("Howr: a menu-bar chime for macOS. Open Howr.app to run it. Options: --version, --snapshot <new-directory>.")
+        exit(0)
+    }
     if Snapshot.run(args) { exit(0) }
     if let i = args.firstIndex(of: "--play") { ChimeProcess.run(Array(args[(i + 1)...])) }
 

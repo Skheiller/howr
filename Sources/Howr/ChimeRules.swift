@@ -2,9 +2,8 @@ import Foundation
 
 /// Pure scheduling logic: which wall-clock instants get a chime.
 ///
-/// Boundaries are computed from the start of the current *real* hour, so a repeated
-/// DST hour chimes twice (once per real hour) and a skipped hour simply never occurs.
-/// Nothing is ever derived by adding 3600s to a previous chime.
+/// Boundaries advance through real time and match wall-clock interval minutes, so
+/// repeated DST hours retain their boundaries and nonexistent times are skipped.
 struct ChimeRules: Equatable {
     var intervalMinutes: Int
     /// Inclusive (start, end) minutes since midnight. start > end wraps past midnight;
