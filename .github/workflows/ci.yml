@@ -20,6 +20,8 @@ jobs:
           persist-credentials: false
       - name: Test
         run: swift test
+      - name: Test installer replacement and rollback
+        run: python3 Tests/installer_test.py
       - name: Build universal release and verify
         env:
           HOWR_BUILD_NUMBER: ${{ github.run_number }}

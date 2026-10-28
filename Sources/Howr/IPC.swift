@@ -10,9 +10,11 @@ final class Channel {
     private let output: Output
     private let writeQueue = DispatchQueue(label: "app.howr.ipc.write")
     private let onClose: @MainActor () -> Void
+    private let onWriteFailure: @MainActor () -> Void
     private var buffer = Data()
     private var queuedBytes = 0
     private var isOpen = true
+    private var canWrite = true
 
     private final class Output: @unchecked Sendable {
         private let fd: Int32
@@ -22,6 +24,7 @@ final class Channel {
             fd = dup(source)
             if fd >= 0 {
                 _ = fcntl(fd, F_SETFD, FD_CLOEXEC)
+                _ = fcntl(fd, F_SETNOSIGPIPE, 1)
                 _ = fcntl(fd, F_SETFL, fcntl(fd, F_GETFL) | O_NONBLOCK)
             }
         }
@@ -47,11 +50,13 @@ final class Channel {
 
     init(read: FileHandle, write: FileHandle,
          onMessage: @escaping @MainActor ([String: Any]) -> Void,
-         onClose: @escaping @MainActor () -> Void) {
+         onClose: @escaping @MainActor () -> Void,
+         onWriteFailure: @escaping @MainActor () -> Void = {}) {
         reader = read
         writer = write
         output = Output(write.fileDescriptor)
         self.onClose = onClose
+        self.onWriteFailure = onWriteFailure
         read.readabilityHandler = { [weak self] handle in
             let chunk = handle.availableData
             DispatchQueue.main.async {
@@ -76,11 +81,11 @@ final class Channel {
     /// Acceptance into a bounded queue, never a blocking pipe write on the scheduler's actor.
     @discardableResult
     func send(_ message: [String: Any]) -> Bool {
-        guard isOpen, JSONSerialization.isValidJSONObject(message),
+        guard isOpen, canWrite, JSONSerialization.isValidJSONObject(message),
               var data = try? JSONSerialization.data(withJSONObject: message),
               data.count <= Self.maxFrameBytes else { return false }
         data.append(0x0A)
-        guard queuedBytes + data.count <= Self.maxFrameBytes * 4 else { finish(); return false }
+        guard queuedBytes + data.count <= Self.maxFrameBytes * 4 else { failWriting(); return false }
         queuedBytes += data.count
         let count = data.count, output = output
         writeQueue.async { [weak self, data] in
@@ -89,7 +94,7 @@ final class Channel {
                 MainActor.assumeIsolated {
                     guard let self else { return }
                     self.queuedBytes -= count
-                    if !success { self.finish() }
+                    if !success { self.failWriting() }
                 }
             }
         }
@@ -107,8 +112,17 @@ final class Channel {
         onClose()
     }
 
+    /// EPIPE is independent of inbound EOF: the peer may have written Quit just before exiting.
+    private func failWriting() {
+        guard canWrite else { return }
+        canWrite = false
+        output.cancel()
+        onWriteFailure()
+    }
+
     func close() {
         isOpen = false
+        canWrite = false
         reader.readabilityHandler = nil
         output.cancel()
     }

@@ -68,7 +68,7 @@ final class UIHost {
     func terminate() {
         for s in live {
             s.channel?.send(["op": "close"])
-            if s.process.isRunning { s.process.terminate() }
+            if s.process.isRunning { kill(s.process.processIdentifier, SIGKILL) }
         }
     }
 
@@ -108,8 +108,13 @@ final class UIHost {
                             onClose: { [weak self, weak s] in
                                 guard let self, let s else { return }
                                 s.drained = true
-                                if s.process.isRunning { s.process.terminate() }
+                                self.stop(s)
                                 self.finishIfDone(s)
+                            }, onWriteFailure: { [weak self, weak s] in
+                                guard let self, let s else { return }
+                                self.retire(s)
+                                self.stop(s)
+                                // Do not mark drained or close the reader. Final UI messages still precede EOF.
                             })
         current = s
         live.append(s)
@@ -129,6 +134,14 @@ final class UIHost {
 
     private func retire(_ s: Session) {
         if current === s { current = nil }
+    }
+
+    private func stop(_ s: Session) {
+        guard s.process.isRunning else { return }
+        s.process.terminate()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak s] in
+            if let s, s.process.isRunning { kill(s.process.processIdentifier, SIGKILL) }
+        }
     }
 
     private func finishIfDone(_ s: Session) {

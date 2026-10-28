@@ -69,14 +69,15 @@ final class ProductionTests: XCTestCase {
 
     func testStalledOutputCannotBlockTheMainActor() {
         let incoming = Pipe(), stalled = Pipe()
-        let closed = expectation(description: "bounded stalled connection closes")
+        let closed = expectation(description: "bounded stalled writer fails")
         let responsive = expectation(description: "main actor remains responsive")
         let channel = Channel(read: incoming.fileHandleForReading, write: stalled.fileHandleForWriting,
-            onMessage: { _ in }, onClose: { closed.fulfill() })
+            onMessage: { _ in }, onClose: {}, onWriteFailure: { closed.fulfill() })
         for _ in 0..<3 { XCTAssertTrue(channel.send(["blob": String(repeating: "x", count: 32_000)])) }
         DispatchQueue.main.async { responsive.fulfill() }
         wait(for: [responsive], timeout: 0.5)
         wait(for: [closed], timeout: 3)
+        channel.close()
         withExtendedLifetime(channel) {}
     }
 
@@ -102,6 +103,21 @@ final class ProductionTests: XCTestCase {
         wait(for: [flushed], timeout: 2)
         XCTAssertTrue(String(decoding: outgoing.fileHandleForReading.availableData, as: UTF8.self).contains("quit"))
         channel.close()
+    }
+
+    func testFinalQuitSurvivesConcurrentStateWriteFailures() {
+        for _ in 0..<100 {
+            let script = #"read l; exec 0<&-; printf '{"op":"quit"}\n'; exit 0"#
+            let host = UIHost(executable: URL(fileURLWithPath: "/bin/sh"), arguments: ["-c", script])
+            let exited = expectation(description: "child exits after inbound drain")
+            var quitReceived = false
+            host.onMessage = { if $0["op"] as? String == "quit" { quitReceived = true } }
+            host.onExit = { exited.fulfill() }
+            host.send(["op": "settings"])
+            for _ in 0..<20 { host.notify(["op": "state", "data": String(repeating: "x", count: 2048)]) }
+            wait(for: [exited], timeout: 3)
+            XCTAssertTrue(quitReceived, "write failure must not discard the peer's final Quit")
+        }
     }
 
     func testEarlyStateExpiryCannotPlayTheSameBoundaryTwice() {
