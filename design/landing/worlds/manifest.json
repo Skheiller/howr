@@ -1,0 +1,46 @@
+{
+  "generator": "built-in image_gen",
+  "assets": [
+    {
+      "number": 1,
+      "file": "06-alpine-desktop-screenshot.png",
+      "kind": "generated concept",
+      "references": [
+        "../references/popover-day.png"
+      ]
+    },
+    {
+      "number": 2,
+      "file": "07-midnight-desktop-screenshot.png",
+      "kind": "generated concept",
+      "references": [
+        "../references/popover-night.png"
+      ]
+    },
+    {
+      "number": 3,
+      "file": "08-forest-workspace.png",
+      "kind": "generated concept",
+      "references": [
+        "../references/popover-day.png"
+      ]
+    },
+    {
+      "number": 4,
+      "file": "09-moss-world-diorama.png",
+      "kind": "generated concept",
+      "references": [
+        "../references/popover-day.png"
+      ]
+    },
+    {
+      "number": 5,
+      "file": "10-themed-landing-page-mockup.png",
+      "kind": "generated concept",
+      "references": [
+        "../references/popover-day.png",
+        "../references/popover-night.png"
+      ]
+    }
+  ]
+}

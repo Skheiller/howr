@@ -1,0 +1,42 @@
+{
+  "generator": "built-in image_gen",
+  "assets": [
+    {
+      "file": "01-sage-menubar-hero.png",
+      "transparent": false,
+      "referenceFiles": [
+        "references/popover-day.png"
+      ]
+    },
+    {
+      "file": "02-cyan-angled-night.png",
+      "transparent": false,
+      "referenceFiles": [
+        "references/popover-night.png"
+      ]
+    },
+    {
+      "file": "03-day-night-pair.png",
+      "transparent": false,
+      "referenceFiles": [
+        "references/popover-day.png",
+        "references/popover-night.png"
+      ]
+    },
+    {
+      "file": "04-backlight-macro.png",
+      "transparent": false,
+      "referenceFiles": [
+        "references/popover-night.png"
+      ]
+    },
+    {
+      "file": "05-transparent-theme-pair.png",
+      "transparent": true,
+      "referenceFiles": [
+        "references/popover-day.png",
+        "references/popover-night.png"
+      ]
+    }
+  ]
+}
