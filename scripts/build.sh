@@ -21,9 +21,14 @@ cp "$BIN" "$APP/Contents/MacOS/Howr"
 cp LICENSE "$APP/Contents/Resources/LICENSE.txt"
 strip -x "$APP/Contents/MacOS/Howr"
 
-# The icon is drawn by the app itself (same LCD code as the UI).
+# Package the generated Howr brand mark at every macOS icon size.
 rm -rf build/AppIcon.iconset
-"$BIN" --render-icon build/AppIcon.iconset
+mkdir -p build/AppIcon.iconset
+for points in 16 32 128 256 512; do
+  sips -z "$points" "$points" assets/brand/howr-logo.png --out "build/AppIcon.iconset/icon_${points}x${points}.png" >/dev/null
+  pixels=$((points * 2))
+  sips -z "$pixels" "$pixels" assets/brand/howr-logo.png --out "build/AppIcon.iconset/icon_${points}x${points}@2x.png" >/dev/null
+done
 iconutil -c icns build/AppIcon.iconset -o "$APP/Contents/Resources/AppIcon.icns"
 
 cat > "$APP/Contents/Info.plist" <<PLIST

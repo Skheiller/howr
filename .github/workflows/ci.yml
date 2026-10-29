@@ -54,4 +54,4 @@ jobs:
           cd dist
           shasum -a 256 -c SHA256SUMS
           printf '%s\n' 'Universal app for macOS 14+, Apple silicon and Intel.' '' 'Ad-hoc signed, not Apple-notarized. First launch may require System Settings → Privacy & Security → Open Anyway. No installer disables Gatekeeper.' '' 'Installation and usage: https://github.com/Skheiller/howr#readme' > notes.md
-          gh release create "$RELEASE_TAG" Howr-*-universal.zip SHA256SUMS release.json --verify-tag --title "Howr $RELEASE_TAG" --notes-file notes.md
+          gh release create "$RELEASE_TAG" Howr-*.zip Howr-*.dmg SHA256SUMS release.json --verify-tag --title "Howr $RELEASE_TAG" --notes-file notes.md

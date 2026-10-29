@@ -1,4 +1,4 @@
-<img src="assets/icon.svg" width="64" height="64" alt="Howr icon">
+<img src="assets/brand/howr-logo.png" width="96" height="96" alt="Howr LCD chime logo">
 
 # Howr
 
@@ -28,14 +28,16 @@ The [installer](scripts/install.sh) downloads the latest universal ZIP, checks i
 
 ### Download the app
 
-Get `Howr-<version>-universal.zip` from [Releases](https://github.com/Skheiller/howr/releases/latest), unzip it and drag **Howr.app** into **Applications**. Open it from Finder. The bell appears in the menu bar; Howr does not use a Dock icon.
+Get **`Howr-<version>-universal.dmg`** from [Releases](https://github.com/Skheiller/howr/releases/latest). Open the disk image, drag **Howr.app** onto the **Applications** shortcut, then eject the image. Open Howr from Applications. The bell appears in the menu bar; Howr does not use a Dock icon.
+
+The release also includes ZIPs for the terminal installer and Homebrew. You do not need those for the usual drag-to-Applications installation.
 
 **First launch:** current releases are ad-hoc signed and **not Apple-notarized**. If macOS blocks the app, first try opening it, then review **System Settings → Privacy & Security → Open Anyway**. Approve only if you trust the download. Managed Macs may prohibit this. See [Apple's instructions](https://support.apple.com/102445). No paid Apple Developer account is required to install or build Howr.
 
-To verify a downloaded ZIP, download `SHA256SUMS` from the same release and run this in the folder containing both files:
+To verify a downloaded DMG, download `SHA256SUMS` from the same release and compare its listed hash with:
 
 ```sh
-shasum -a 256 -c SHA256SUMS
+shasum -a 256 Howr-1.0.1-universal.dmg
 ```
 
 Checksums detect corruption; ad-hoc signing does not identify an Apple-verified publisher.
@@ -82,9 +84,25 @@ swift test
 scripts/build.sh --run
 ```
 
-`scripts/build.sh` creates an ad-hoc-signed universal `build/Howr.app`. `VERSION` controls the app version; `HOWR_BUILD_NUMBER` overrides its numeric bundle build number. `scripts/release.sh` verifies the app and produces the ZIP, checksums and release manifest. macOS CI runs the tests and universal build; a `v<VERSION>` tag publishes only after verification succeeds.
+`scripts/build.sh` creates an ad-hoc-signed universal `build/Howr.app`. `VERSION` controls the app version; `HOWR_BUILD_NUMBER` overrides its numeric bundle build number. `scripts/release.sh` verifies the app and produces the DMG, ZIPs, checksums and release manifest. It mounts the DMG read-only, checks the app and Applications shortcut, then verifies a copied app. macOS CI runs the tests and universal build; a `v<VERSION>` tag publishes only after verification succeeds.
 
 See [Contributing](CONTRIBUTING.md), [Security](SECURITY.md) and the [changelog](CHANGELOG.md).
+
+## Download statistics
+
+GitHub records aggregate download counts for each release asset. Starting with
+v1.0.1, the website uses the DMG, Homebrew uses `-homebrew.zip`, and the terminal
+installer uses `-universal.zip`, so these distribution paths have separate counters.
+Maintainers can read all release counts with Python 3 and an authenticated GitHub CLI:
+
+```sh
+python3 scripts/download-stats.py
+```
+
+These are file downloads, not unique people or confirmed installations. They
+include verification downloads and retries; someone downloading an asset directly
+on GitHub is counted under that asset too. v1.0.0's ZIP combined all methods and
+cannot be split retrospectively. The native app sends no telemetry.
 
 `Howr --snapshot <new-directory>` renders the native screens to PNG. The screenshots above are native renders. Other artwork under `design/landing/` is generated concept artwork, as its manifests record. Use a new dated folder for captures to preserve existing references.
 

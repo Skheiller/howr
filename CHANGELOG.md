@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.0.1
+
+- A drag-to-Applications DMG, verified after mounting and copying the app.
+- New Howr LCD chime logo and a complete macOS app iconset.
+- Separate Homebrew and terminal release assets for aggregate download counts.
+- Public contribution instructions, issue/PR templates and download statistics tool.
+
+This release is still ad-hoc signed, not Apple-notarized.
+
 ## 1.0.0
 
 First public release for macOS 14+, on Apple silicon and Intel.
