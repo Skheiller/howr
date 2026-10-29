@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.0.1
+## 1.0.2
 
 - A drag-to-Applications DMG, verified after mounting and copying the app.
 - New Howr LCD chime logo and a complete macOS app iconset.

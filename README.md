@@ -37,7 +37,7 @@ The release also includes ZIPs for the terminal installer and Homebrew. You do n
 To verify a downloaded DMG, download `SHA256SUMS` from the same release and compare its listed hash with:
 
 ```sh
-shasum -a 256 Howr-1.0.1-universal.dmg
+shasum -a 256 Howr-1.0.2-universal.dmg
 ```
 
 Checksums detect corruption; ad-hoc signing does not identify an Apple-verified publisher.
@@ -91,7 +91,7 @@ See [Contributing](CONTRIBUTING.md), [Security](SECURITY.md) and the [changelog]
 ## Download statistics
 
 GitHub records aggregate download counts for each release asset. Starting with
-v1.0.1, the website uses the DMG, Homebrew uses `-homebrew.zip`, and the terminal
+v1.0.2, the website uses the DMG, Homebrew uses `-homebrew.zip`, and the terminal
 installer uses `-universal.zip`, so these distribution paths have separate counters.
 Maintainers can read all release counts with Python 3 and an authenticated GitHub CLI:
 

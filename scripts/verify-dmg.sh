@@ -3,6 +3,7 @@
 set -euo pipefail
 image=$1 version=$2
 work=$(/usr/bin/mktemp -d "${TMPDIR:-/tmp}/howr-dmg-check.XXXXXX")
+work=$(cd "$work" && pwd -P)
 attach_started=0
 cleanup() {
   local result=$?
